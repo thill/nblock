@@ -32,15 +32,15 @@
 //! use std::thread::current;
 //!
 //!let runtime = Runtime::builder()
-//!.with_thread_selector(
-//!    RoundRobinSelector::builder()
-//!        .with_thread_ids(vec![1, 2])
-//!        .with_idle(Backoff::default())
-//!        .build()
-//!        .unwrap(),
-//!)
-//!.build()
-//!.unwrap();
+//!    .with_thread_selector(
+//!        RoundRobinSelector::builder()
+//!            .with_thread_ids(vec![1, 2])
+//!            .with_idle(Backoff::default())
+//!            .build()
+//!            .unwrap(),
+//!    )
+//!    .build()
+//!    .unwrap();
 //!
 //! struct HelloWorldTask;
 //! impl Task for HelloWorldTask {
@@ -129,34 +129,34 @@
 //! use std::{thread, time::Duration};
 //!
 //! let runtime = Runtime::builder()
-//! .with_thread_selector(
-//!     RoundRobinSelector::builder()
-//!         .with_thread_ids(vec![1, 2])
-//!         .with_idle(Backoff::default())
-//!         .build()
-//!         .unwrap(),
-//! )
-//! .build()
-//! .unwrap();
+//!     .with_thread_selector(
+//!         RoundRobinSelector::builder()
+//!             .with_thread_ids(vec![1, 2])
+//!             .with_idle(Backoff::default())
+//!             .build()
+//!             .unwrap(),
+//!     )
+//!     .build()
+//!     .unwrap();
 //!
 //! struct HelloWorldTask {
-//! input: u64,
+//!     input: u64,
 //! }
 //! impl HelloWorldTask {
-//! fn new(input: u64) -> Self {
-//!     Self { input }
-//! }
+//!     fn new(input: u64) -> Self {
+//!         Self { input }
+//!     }
 //! }
 //! impl Task for HelloWorldTask {
-//! type Output = u64;
-//! fn drive(&mut self) -> nblock::task::Nonblock<Self::Output> {
-//!     println!(
-//!         "Hello, world from thread {:?}! The input was {}.",
-//!         thread::current().name().unwrap(),
-//!         self.input
-//!     );
-//!     Nonblock::Complete(self.input + 1)
-//! }
+//!     type Output = u64;
+//!     fn drive(&mut self) -> nblock::task::Nonblock<Self::Output> {
+//!         println!(
+//!             "Hello, world from thread {:?}! The input was {}.",
+//!             thread::current().name().unwrap(),
+//!             self.input
+//!         );
+//!         Nonblock::Complete(self.input + 1)
+//!     }
 //! }
 //!
 //! runtime
