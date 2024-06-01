@@ -39,7 +39,7 @@ fn test_spawned_task_idle() {
 
     // spawn the task and wait until it's done
     let timeout_at = SystemTime::now() + Duration::from_secs(5);
-    runtime.spawn("task", move || task);
+    runtime.spawn("task", task);
     while iteration.load(Ordering::Relaxed) < 5 && SystemTime::now() < timeout_at {
         thread::sleep(Duration::from_millis(10));
     }
@@ -95,8 +95,8 @@ fn test_single_task_not_idling() {
         .unwrap();
 
     // spawn a task that is always idle and a task that is always active on the same thread
-    runtime.spawn("active", || AlwaysActive);
-    runtime.spawn("idle", || AlwaysIdle);
+    runtime.spawn("active", AlwaysActive);
+    runtime.spawn("idle", AlwaysIdle);
 
     // let threads run a bit
     thread::sleep(Duration::from_millis(100));

@@ -12,7 +12,7 @@
 //! # Threads
 //!
 //! Tasks are spawned onto a set of shared threads that are managed by the runtime.
-//! A tasks is bound to a specific thread based on the configured [`ThreadSelector`].
+//! A tasks is bound to a specific thread based on the provided [`ThreadSelector`].
 //!
 //! # Examples
 //!
@@ -46,26 +46,26 @@
 //! impl Task for HelloWorldTask {
 //!     type Output = ();
 //!     fn drive(&mut self) -> nblock::task::Nonblock<Self::Output> {
-//!         println!("hello, world from thread {:?}!", current().name().unwrap());
+//!         println!("hello, world! from: {:?}", current().name().unwrap());
 //!         Nonblock::Complete(())
 //!     }
 //! }
 //!
-//! runtime.spawn("t1", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t2", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t3", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t4", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t5", || HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t1", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t2", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t3", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t4", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t5", HelloWorldTask).join(NoOp).unwrap();
 //! ```
 //!
 //! ### Output
 //!
 //! ```text
-//! hello, world from thread "nblock thread-1"!
-//! hello, world from thread "nblock thread-2"!
-//! hello, world from thread "nblock thread-1"!
-//! hello, world from thread "nblock thread-2"!
-//! hello, world from thread "nblock thread-1"!
+//! hello, world! from: "nblock thread-1"
+//! hello, world! from: "nblock thread-2"
+//! hello, world! from: "nblock thread-1"
+//! hello, world! from: "nblock thread-2"
+//! hello, world! from: "nblock thread-1"
 //! ```
 //!
 //! ## Dedicated Spawn
@@ -91,26 +91,26 @@
 //! impl Task for HelloWorldTask {
 //!     type Output = ();
 //!     fn drive(&mut self) -> nblock::task::Nonblock<Self::Output> {
-//!         println!("hello, world from thread {:?}!", current().name().unwrap());
+//!         println!("hello, world! from: {:?}", current().name().unwrap());
 //!         Nonblock::Complete(())
 //!     }
 //! }
 //!
-//! runtime.spawn("t1", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t2", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t3", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t4", || HelloWorldTask).join(NoOp).unwrap();
-//! runtime.spawn("t5", || HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t1", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t2", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t3", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t4", HelloWorldTask).join(NoOp).unwrap();
+//! runtime.spawn("t5", HelloWorldTask).join(NoOp).unwrap();
 //! ```
 //!
 //! ### Output
 //!
 //! ```text
-//! hello, world from thread "nblock task t1"!
-//! hello, world from thread "nblock task t2"!
-//! hello, world from thread "nblock task t3"!
-//! hello, world from thread "nblock task t4"!
-//! hello, world from thread "nblock task t5"!
+//! hello, world! from: "nblock task t1"
+//! hello, world! from: "nblock task t2"
+//! hello, world! from: "nblock task t3"
+//! hello, world! from: "nblock task t4"
+//! hello, world! from: "nblock task t5"
 //! ```
 //!
 //! ## Spawn On Completion
@@ -151,7 +151,7 @@
 //!     type Output = u64;
 //!     fn drive(&mut self) -> nblock::task::Nonblock<Self::Output> {
 //!         println!(
-//!             "Hello, world from thread {:?}! The input was {}.",
+//!             "hello, world! from: {:?}! The input was {}.",
 //!             thread::current().name().unwrap(),
 //!             self.input
 //!         );
@@ -160,9 +160,9 @@
 //! }
 //!
 //! runtime
-//!     .spawn("t1", move || HelloWorldTask::new(1))
+//!     .spawn("t1", HelloWorldTask::new(1))
 //!     .on_complete(|output| {
-//!         Runtime::get().spawn("t2", move || HelloWorldTask::new(output));
+//!         Runtime::get().spawn("t2", HelloWorldTask::new(output));
 //!     });
 //!
 //! thread::sleep(Duration::from_millis(100));
@@ -175,8 +175,8 @@
 //! ## Output
 //!
 //! ```text
-//! Hello, world from thread "nblock thread-1"! The input was 1.
-//! Hello, world from thread "nblock thread-2"! The input was 2.
+//! hello, world! from: "nblock thread-1"! The input was 1.
+//! hello, world! from: "nblock thread-2"! The input was 2.
 //! ```
 
 use std::{
@@ -294,8 +294,9 @@ impl Runtime {
     /// Instead [`IntoTask`] will be sent to the target nonblocking thread, where it will instantiate the [`Task`] there.
     /// This allows a user to create non-[`Send`] tasks by transferring the [`Send`] responsibility to the [`IntoTask`].
     ///
-    /// This crate implements [`IntoTask`] for `FnOnce() -> impl Task`, allowing `|| my_task` to be provided to this function for tasks that are already [`Send`].
-    /// Users are also free to implement [`IntoTask`] for their custom types, which reduces boilerplate code needed to spawn nonblocking tasks through this function.
+    /// ## IntoTask
+    ///
+    /// Users are free to implement [`IntoTask`] for their custom types, which reduces boilerplate code needed to spawn nonblocking tasks through this function.
     pub fn spawn<T>(&self, task_name: &str, task: T) -> JoinHandle<<T::Task as Task>::Output>
     where
         T: IntoTask + Send + 'static,

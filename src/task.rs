@@ -21,18 +21,19 @@ where
 /// Something that can be converted into a [`Task`].
 ///
 /// [`crate::Runtime::spawn`] requires that implementations be [`Send`], so that it can be dispatched to a non-blocking thread where the [`Task`] will be created.
+///
+/// A default `Task` impl is provided so that any `Task` can `IntoTask`.
 pub trait IntoTask {
     type Task: Task;
     fn into_task(self) -> Self::Task;
 }
-impl<T, F> IntoTask for F
+impl<T> IntoTask for T
 where
     T: Task,
-    F: FnOnce() -> T,
 {
     type Task = T;
     fn into_task(self) -> Self::Task {
-        self()
+        self
     }
 }
 

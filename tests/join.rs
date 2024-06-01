@@ -11,7 +11,7 @@ use nblock::{idle::NoOp, selector::DedicatedThreadSelector, task::Nonblock, Runt
 fn test_join_handle_try_take() {
     let runtime = create_runtime();
     let task = move || Nonblock::Complete("success".to_owned());
-    let handle = runtime.spawn("mytask", move || task);
+    let handle = runtime.spawn("mytask", task);
     let output = unwrap_timeout(move || handle.try_take().unwrap());
     assert_eq!("success", output.as_str());
 }
@@ -20,7 +20,7 @@ fn test_join_handle_try_take() {
 fn test_join_handle_join() {
     let runtime = create_runtime();
     let task = move || Nonblock::Complete("success".to_owned());
-    let handle = runtime.spawn("mytask", move || task);
+    let handle = runtime.spawn("mytask", task);
     let output = handle.join(NoOp).unwrap();
     assert_eq!("success", output.as_str());
 }
@@ -38,7 +38,7 @@ fn test_join_handle_on_complete_from_task_thread() {
         let output = Arc::clone(&output);
         // run the task and immediately set the on_complete hook, so the task should still be running
         runtime
-            .spawn("mytask", move || task)
+            .spawn("mytask", task)
             .on_complete(move |x| output.store(Some(x)));
     }
     let output = unwrap_timeout(move || output.take());
@@ -51,7 +51,7 @@ fn test_join_handle_on_complete_from_caller_thread() {
     // create task that will execute immediately
     let task = move || Nonblock::Complete("success".to_owned());
     // execute the task and get the handle
-    let handle = runtime.spawn("mytask", move || task);
+    let handle = runtime.spawn("mytask", task);
     // sleep, which will cause the task to execute fully
     thread::sleep(Duration::from_millis(100));
     // set on_complete, which should be for a completed task by now, which will mean the only way it can be called is from the current thread

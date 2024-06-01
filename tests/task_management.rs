@@ -27,9 +27,9 @@ fn test_active_task_count() {
     let thread1_task2 = IdleUntilStopped::new(&thread1_task2_running);
     let thread2_task1 = IdleUntilStopped::new(&thread2_task1_running);
 
-    runtime.spawn("thread1_task1", move || thread1_task1);
-    runtime.spawn("thread1_task2", move || thread1_task2);
-    runtime.spawn("thread2_task1", move || thread2_task1);
+    runtime.spawn("thread1_task1", thread1_task1);
+    runtime.spawn("thread1_task2", thread1_task2);
+    runtime.spawn("thread2_task1", thread2_task1);
 
     assert_timeout(
         || runtime.active_task_count() == 3,
@@ -89,9 +89,9 @@ fn test_panic_decrements_active_task_count() {
     let thread1_task2 = IdleUntilStopped::new(&thread1_task2_running);
     let thread2_task1 = IdleUntilStopped::new(&thread2_task1_running);
 
-    runtime.spawn("thread1_task1", move || thread1_task1);
-    runtime.spawn("thread1_task2", move || thread1_task2);
-    runtime.spawn("thread2_task1", move || thread2_task1);
+    runtime.spawn("thread1_task1", thread1_task1);
+    runtime.spawn("thread1_task2", thread1_task2);
+    runtime.spawn("thread2_task1", thread2_task1);
 
     assert_timeout(
         || runtime.active_task_count() == 3,
@@ -99,7 +99,7 @@ fn test_panic_decrements_active_task_count() {
     );
 
     // panic thread 1, crashing new task and existing 2 tasks on thread
-    runtime.spawn("thread1_task3", || PanicTask);
+    runtime.spawn("thread1_task3", PanicTask);
 
     assert_timeout(
         || runtime.active_task_count() == 1,
