@@ -411,11 +411,29 @@ impl RuntimeBuilder {
         self
     }
 
+    /// The strategy used to assign tasks to threads
+    pub fn set_thread_selector<T>(&mut self, thread_selector: T) -> &mut Self
+    where
+        T: ThreadSelector + Send + Sync + 'static,
+    {
+        self.thread_selector = Some(Box::new(thread_selector));
+        self
+    }
+
     /// Use a shared runflag.
     /// When this flag is set to false, all tasks will stop being polled
     ///
     /// Defaults to a new [`AtomicBool`].
     pub fn with_runflag(mut self, runflag: Arc<AtomicBool>) -> Self {
+        self.runflag = Some(runflag);
+        self
+    }
+
+    /// Use a shared runflag.
+    /// When this flag is set to false, all tasks will stop being polled
+    ///
+    /// Defaults to a new [`AtomicBool`].
+    pub fn set_runflag(&mut self, runflag: Arc<AtomicBool>) -> &mut Self {
         self.runflag = Some(runflag);
         self
     }
@@ -434,6 +452,20 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Amount of time a [`ThreadSelect::Shared`] thread will stay alive after its underlying tasks have completed.
+    ///
+    /// This allows a thread to stay alive for some duration, waiting to accept new tasks, preventing expensive thread-startup operations.
+    ///
+    /// Defaults to 1 second.
+    /// Set to [`None`] to never stop shared threads.
+    pub fn set_thread_wind_down_duration(
+        &mut self,
+        thread_wind_down_duration: Option<Duration>,
+    ) -> &mut Self {
+        self.thread_wind_down_duration = thread_wind_down_duration;
+        self
+    }
+
     /// Called from within a spawned [`Runtime`] thread before any tasks are polled.
     /// This is useful for monitoring or to set thread affinity.
     pub fn with_thread_start_hook<T, I>(mut self, thread_start_hook: I) -> Self
@@ -445,8 +477,29 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Called from within a spawned [`Runtime`] thread before any tasks are polled.
+    /// This is useful for monitoring or to set thread affinity.
+    pub fn set_thread_start_hook<T, I>(&mut self, thread_start_hook: I) -> &mut Self
+    where
+        T: OnThreadStart + 'static,
+        I: Into<Box<T>>,
+    {
+        self.thread_start_hook = Some(thread_start_hook.into());
+        self
+    }
+
     /// Called from within a spawned [`Runtime`] thread immediately before terminating after all tasks and wind-down has completed.
     pub fn with_thread_stop_hook<T, I>(mut self, thread_stop_hook: I) -> Self
+    where
+        T: OnThreadStop + 'static,
+        I: Into<Box<T>>,
+    {
+        self.thread_stop_hook = Some(thread_stop_hook.into());
+        self
+    }
+
+    /// Called from within a spawned [`Runtime`] thread immediately before terminating after all tasks and wind-down has completed.
+    pub fn set_thread_stop_hook<T, I>(&mut self, thread_stop_hook: I) -> &mut Self
     where
         T: OnThreadStop + 'static,
         I: Into<Box<T>>,
