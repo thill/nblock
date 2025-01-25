@@ -1,4 +1,4 @@
-/// This module contains various hook traits, with [`Fn`] or [`FnMut`] impls.
+//! This module contains various hook traits, with [`Fn`] or [`FnMut`] impls.
 
 /// Called when a [`crate::task::Task`] is complete, set by [`crate::JoinHandle::on_complete`].
 pub trait OnTaskComplete<T>: Send {

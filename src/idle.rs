@@ -1,4 +1,5 @@
-/// Defines the `IdleStrategy` trait and various implementations
+//! Defines the `IdleStrategy` trait and various implementations
+
 use std::{sync::Arc, thread, time::Duration};
 
 /// Used to throttle CPU usage when all tasks on a thread are in an idle state

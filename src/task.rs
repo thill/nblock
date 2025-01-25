@@ -1,15 +1,14 @@
-/// Definitions for task-related traits and impls
+//! Definitions for task-related traits and impls
 
 /// Represents a single non-blocking task to be spawned using [`crate::Runtime::spawn`].
 ///
 /// A default [`FnMut`] implementation is provided.
 pub trait Task {
-    type Output: Send + 'static;
+    type Output;
     fn drive(&mut self) -> Nonblock<Self::Output>;
 }
 impl<O, F> Task for F
 where
-    O: Send + 'static,
     F: FnMut() -> Nonblock<O>,
 {
     type Output = O;

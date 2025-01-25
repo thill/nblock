@@ -1,4 +1,5 @@
-/// Private module, encapsulates logic for spawning threads and managing tasks
+//! Private module, encapsulates logic for spawning threads and managing tasks
+
 use std::{
     sync::{
         atomic::{AtomicU8, AtomicUsize, Ordering},
@@ -113,6 +114,7 @@ impl ThreadController {
     pub fn add_task<T, I>(&self, task: I) -> JoinHandle<T::Output>
     where
         T: Task + 'static,
+        T::Output: Send + 'static,
         I: IntoTask<Task = T> + Send + 'static,
     {
         let join_handle = JoinHandle::new();
@@ -307,6 +309,7 @@ impl PendingTask {
     fn new<T, I>(uninstantiated_task: I, join_context: Arc<JoinHandleContext<T::Output>>) -> Self
     where
         T: Task + 'static,
+        T::Output: Send + 'static,
         I: IntoTask<Task = T> + Send + 'static,
     {
         Self {

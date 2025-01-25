@@ -1,4 +1,5 @@
-/// Private module, encapsulates threadlocal management of `RuntimeContext`
+//! Private module, encapsulates threadlocal management of `RuntimeContext`
+
 use std::{
     cell::RefCell,
     collections::HashMap,

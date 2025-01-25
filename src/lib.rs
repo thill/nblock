@@ -197,6 +197,7 @@ use spinning_top::Spinlock;
 use task::{IntoTask, Task};
 use thread::{JoinHandleContext, JoinHandleState, ThreadController, ThreadSpawner};
 
+pub mod asynch;
 pub mod error;
 pub mod hook;
 pub mod idle;
@@ -300,6 +301,7 @@ impl Runtime {
     pub fn spawn<T>(&self, task_name: &str, task: T) -> JoinHandle<<T::Task as Task>::Output>
     where
         T: IntoTask + Send + 'static,
+        <T::Task as Task>::Output: Send + 'static,
     {
         let thread_select = self.context.thread_selector.select(task_name);
         match thread_select {

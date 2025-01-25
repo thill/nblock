@@ -1,4 +1,5 @@
-/// Defines the `ThreadSelector` trait and provides some implementations.
+//! Defines the `ThreadSelector` trait and provides some implementations.
+
 use std::{
     collections::{BTreeSet, HashMap},
     fmt::Debug,
